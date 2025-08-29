@@ -1,9 +1,9 @@
 'use client';
 
-import { type Agencia, type Restaurante } from '@/lib/data';
+import { type Agencia, type Restaurante, type Pilates } from '@/lib/data';
 
-type Establishment = (Agencia | Restaurante) & {
-  category: 'agencia' | 'restaurante';
+type Establishment = (Agencia | Restaurante | Pilates) & {
+  category: 'agencia' | 'restaurante' | 'pilates';
   uniqueId: string;
 };
 
@@ -58,9 +58,12 @@ export default function EstablishmentTable({ establishments }: EstablishmentTabl
                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                   establishment.category === 'agencia' 
                     ? 'bg-blue-100 text-blue-800' 
+                    : establishment.category === 'pilates'
+                    ? 'bg-purple-100 text-purple-800'
                     : 'bg-green-100 text-green-800'
                 }`}>
-                  {establishment.category === 'agencia' ? 'Agência' : 'Restaurante'}
+                  {establishment.category === 'agencia' ? 'Agência' : 
+                   establishment.category === 'pilates' ? 'Pilates' : 'Restaurante'}
                 </span>
               </td>
               <td className="px-6 py-4">

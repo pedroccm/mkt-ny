@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { loadAgencias, loadRestaurantes, type Agencia, type Restaurante } from '@/lib/data';
+import { loadAgencias, loadRestaurantes, loadPilates, type Agencia, type Restaurante, type Pilates } from '@/lib/data';
 import EstablishmentCards from '@/components/EstablishmentCards';
 import EstablishmentTable from '@/components/EstablishmentTable';
 
-type Establishment = (Agencia | Restaurante) & {
-  category: 'agencia' | 'restaurante';
+type Establishment = (Agencia | Restaurante | Pilates) & {
+  category: 'agencia' | 'restaurante' | 'pilates';
   uniqueId: string;
 };
 
@@ -14,20 +14,28 @@ type Establishment = (Agencia | Restaurante) & {
 export default function HomePage() {
   const [restaurantes, setRestaurantes] = useState<Establishment[]>([]);
   const [agencias, setAgencias] = useState<Establishment[]>([]);
+  const [pilates, setPilates] = useState<Establishment[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredEstablishments, setFilteredEstablishments] = useState<Establishment[]>([]);
   const [showOnlyWithSite, setShowOnlyWithSite] = useState(false);
   const [showRestaurantes, setShowRestaurantes] = useState(true);
   const [showAgencias, setShowAgencias] = useState(true);
+  const [showPilates, setShowPilates] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [agenciasData, restaurantesData] = await Promise.all([
+        const [agenciasData, restaurantesData, pilatesData] = await Promise.all([
           loadAgencias(),
-          loadRestaurantes()
+          loadRestaurantes(),
+          loadPilates()
         ]);
 
         // Create unique identifiers and assign categories based on source file
@@ -43,9 +51,16 @@ export default function HomePage() {
           uniqueId: `restaurante_${r.place_id}_${index}`
         }));
 
+        const pilatesWithCategory = pilatesData.map((p, index) => ({ 
+          ...p, 
+          category: 'pilates' as const,
+          uniqueId: `pilates_${p.place_id}_${index}`
+        }));
+
         // Keep data separated by source
         setAgencias(agenciasWithCategory);
         setRestaurantes(restaurantesWithCategory);
+        setPilates(pilatesWithCategory);
       } catch (error) {
         console.error('Error loading data:', error);
       } finally {
@@ -66,6 +81,9 @@ export default function HomePage() {
     if (showAgencias) {
       filtered = [...filtered, ...agencias];
     }
+    if (showPilates) {
+      filtered = [...filtered, ...pilates];
+    }
     
     // Filter by website availability
     if (showOnlyWithSite) {
@@ -84,9 +102,9 @@ export default function HomePage() {
     }
     
     setFilteredEstablishments(filtered);
-  }, [searchTerm, restaurantes, agencias, showRestaurantes, showAgencias, showOnlyWithSite]);
+  }, [searchTerm, restaurantes, agencias, pilates, showRestaurantes, showAgencias, showPilates, showOnlyWithSite]);
 
-  if (loading) {
+  if (loading || !mounted) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-lg">Carregando estabelecimentos...</div>
@@ -118,8 +136,8 @@ export default function HomePage() {
           <div className="mt-4 flex flex-wrap gap-2 sm:gap-4">
             <button
               onClick={() => {
-                // If only restaurantes is active and we try to turn it off, turn on agencias instead
-                if (showRestaurantes && !showAgencias) {
+                // If only restaurantes is active and we try to turn it off, turn on one of the others
+                if (showRestaurantes && !showAgencias && !showPilates) {
                   setShowRestaurantes(false);
                   setShowAgencias(true);
                 } else {
@@ -142,8 +160,8 @@ export default function HomePage() {
             
             <button
               onClick={() => {
-                // If only agencias is active and we try to turn it off, turn on restaurantes instead
-                if (showAgencias && !showRestaurantes) {
+                // If only agencias is active and we try to turn it off, turn on one of the others
+                if (showAgencias && !showRestaurantes && !showPilates) {
                   setShowAgencias(false);
                   setShowRestaurantes(true);
                 } else {
@@ -165,15 +183,39 @@ export default function HomePage() {
             </button>
             
             <button
-              onClick={() => setShowOnlyWithSite(!showOnlyWithSite)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
-                showOnlyWithSite 
+              onClick={() => {
+                // If only pilates is active and we try to turn it off, turn on one of the others
+                if (showPilates && !showRestaurantes && !showAgencias) {
+                  setShowPilates(false);
+                  setShowRestaurantes(true);
+                } else {
+                  setShowPilates(!showPilates);
+                }
+              }}
+              className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg border transition-colors text-sm ${
+                showPilates 
                   ? 'bg-purple-100 border-purple-300 text-purple-800' 
                   : 'bg-gray-100 border-gray-300 text-gray-600'
               }`}
             >
               <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
-                showOnlyWithSite ? 'bg-purple-600 border-purple-600' : 'border-gray-300'
+                showPilates ? 'bg-purple-600 border-purple-600' : 'border-gray-300'
+              }`}>
+                {showPilates && <span className="text-white text-xs">✓</span>}
+              </div>
+              <span className="whitespace-nowrap">Pilates</span>
+            </button>
+            
+            <button
+              onClick={() => setShowOnlyWithSite(!showOnlyWithSite)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+                showOnlyWithSite 
+                  ? 'bg-orange-100 border-orange-300 text-orange-800' 
+                  : 'bg-gray-100 border-gray-300 text-gray-600'
+              }`}
+            >
+              <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
+                showOnlyWithSite ? 'bg-orange-600 border-orange-600' : 'border-gray-300'
               }`}>
                 {showOnlyWithSite && <span className="text-white text-xs">✓</span>}
               </div>
