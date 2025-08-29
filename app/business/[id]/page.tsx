@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Star, MapPin, Phone, Globe, Clock, ArrowLeft, ExternalLink } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import { notFound } from "next/navigation"
 import { getAgenciaById, getRestauranteById } from "@/lib/data"
 
@@ -71,9 +72,11 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
 
               <CardContent>
                 {business.image && (
-                  <img
+                  <Image
                     src={business.image || "/placeholder.svg"}
                     alt={business.title}
+                    width={800}
+                    height={256}
                     className="w-full h-64 object-cover rounded-lg mb-6"
                   />
                 )}
