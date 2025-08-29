@@ -19,6 +19,7 @@ export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredEstablishments, setFilteredEstablishments] = useState<Establishment[]>([]);
   const [showOnlyWithSite, setShowOnlyWithSite] = useState(false);
+  const [showOnlyWithInstagram, setShowOnlyWithInstagram] = useState(false);
   const [showRestaurantes, setShowRestaurantes] = useState(true);
   const [showAgencias, setShowAgencias] = useState(true);
   const [showPilates, setShowPilates] = useState(false);
@@ -88,7 +89,17 @@ export default function HomePage() {
     // Filter by website availability
     if (showOnlyWithSite) {
       filtered = filtered.filter(establishment => 
-        establishment.website && establishment.website.trim() !== ''
+        establishment.website && 
+        establishment.website.trim() !== '' &&
+        !establishment.website.toLowerCase().includes('instagram.com')
+      );
+    }
+    
+    // Filter by Instagram availability
+    if (showOnlyWithInstagram) {
+      filtered = filtered.filter(establishment => 
+        establishment.website && 
+        establishment.website.toLowerCase().includes('instagram.com')
       );
     }
     
@@ -102,7 +113,7 @@ export default function HomePage() {
     }
     
     setFilteredEstablishments(filtered);
-  }, [searchTerm, restaurantes, agencias, pilates, showRestaurantes, showAgencias, showPilates, showOnlyWithSite]);
+  }, [searchTerm, restaurantes, agencias, pilates, showRestaurantes, showAgencias, showPilates, showOnlyWithSite, showOnlyWithInstagram]);
 
   if (loading || !mounted) {
     return (
@@ -207,7 +218,12 @@ export default function HomePage() {
             </button>
             
             <button
-              onClick={() => setShowOnlyWithSite(!showOnlyWithSite)}
+              onClick={() => {
+                setShowOnlyWithSite(!showOnlyWithSite);
+                if (!showOnlyWithSite) {
+                  setShowOnlyWithInstagram(false);
+                }
+              }}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
                 showOnlyWithSite 
                   ? 'bg-orange-100 border-orange-300 text-orange-800' 
@@ -220,6 +236,27 @@ export default function HomePage() {
                 {showOnlyWithSite && <span className="text-white text-xs">✓</span>}
               </div>
               Com Website
+            </button>
+            
+            <button
+              onClick={() => {
+                setShowOnlyWithInstagram(!showOnlyWithInstagram);
+                if (!showOnlyWithInstagram) {
+                  setShowOnlyWithSite(false);
+                }
+              }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+                showOnlyWithInstagram 
+                  ? 'bg-pink-100 border-pink-300 text-pink-800' 
+                  : 'bg-gray-100 border-gray-300 text-gray-600'
+              }`}
+            >
+              <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
+                showOnlyWithInstagram ? 'bg-pink-600 border-pink-600' : 'border-gray-300'
+              }`}>
+                {showOnlyWithInstagram && <span className="text-white text-xs">✓</span>}
+              </div>
+              Com Instagram
             </button>
           </div>
           
