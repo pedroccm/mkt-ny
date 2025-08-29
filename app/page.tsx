@@ -87,7 +87,7 @@ export default function HomePage() {
       filtered = filtered.filter(establishment => 
         establishment.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         establishment.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        establishment.type.toLowerCase().includes(searchTerm.toLowerCase())
+        establishment.types.some(type => type.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
     
@@ -104,7 +104,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 max-w-full overflow-x-hidden">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             MKT & Rests
@@ -123,10 +123,10 @@ export default function HomePage() {
             className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           
-          <div className="mt-4 flex gap-4">
+          <div className="mt-4 flex flex-wrap gap-2 sm:gap-4">
             <button
               onClick={() => setShowRestaurantes(!showRestaurantes)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+              className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg border transition-colors text-sm ${
                 showRestaurantes 
                   ? 'bg-green-100 border-green-300 text-green-800' 
                   : 'bg-gray-100 border-gray-300 text-gray-600'
@@ -137,12 +137,12 @@ export default function HomePage() {
               }`}>
                 {showRestaurantes && <span className="text-white text-xs">✓</span>}
               </div>
-              🍽️ Restaurantes
+              <span className="whitespace-nowrap">🍽️ Restaurantes</span>
             </button>
             
             <button
               onClick={() => setShowAgencias(!showAgencias)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+              className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg border transition-colors text-sm ${
                 showAgencias 
                   ? 'bg-blue-100 border-blue-300 text-blue-800' 
                   : 'bg-gray-100 border-gray-300 text-gray-600'
@@ -153,7 +153,7 @@ export default function HomePage() {
               }`}>
                 {showAgencias && <span className="text-white text-xs">✓</span>}
               </div>
-              🏢 Agências
+              <span className="whitespace-nowrap">🏢 Agências</span>
             </button>
             
             <button
@@ -173,13 +173,13 @@ export default function HomePage() {
             </button>
           </div>
           
-          <div className="mt-4 flex items-center justify-between">
+          <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="text-sm text-gray-600">
               {filteredEstablishments.length} estabelecimentos encontrados
             </div>
             
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Visualização:</span>
+              <span className="text-sm text-gray-600 hidden sm:inline">Visualização:</span>
               <div className="flex border border-gray-300 rounded-lg overflow-hidden">
                 <button
                   onClick={() => setViewMode('cards')}
