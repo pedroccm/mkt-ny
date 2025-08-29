@@ -112,6 +112,9 @@ export default function HomePage() {
       );
     }
     
+    // Sort by number of reviews (evaluations) in descending order (highest first)
+    filtered.sort((a, b) => b.reviews - a.reviews);
+    
     setFilteredEstablishments(filtered);
   }, [searchTerm, restaurantes, agencias, pilates, showRestaurantes, showAgencias, showPilates, showOnlyWithSite, showOnlyWithInstagram]);
 
