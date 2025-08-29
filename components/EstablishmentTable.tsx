@@ -30,9 +30,6 @@ export default function EstablishmentTable({ establishments }: EstablishmentTabl
               Avaliação
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Horário
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Site
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -63,12 +60,12 @@ export default function EstablishmentTable({ establishments }: EstablishmentTabl
                     ? 'bg-blue-100 text-blue-800' 
                     : 'bg-green-100 text-green-800'
                 }`}>
-                  {establishment.category === 'agencia' ? '🏢 Agência' : '🍽️ Restaurante'}
+                  {establishment.category === 'agencia' ? 'Agência' : 'Restaurante'}
                 </span>
               </td>
               <td className="px-6 py-4">
                 <div className="text-sm text-gray-600 max-w-xs truncate" title={establishment.address}>
-                  📍 {establishment.address}
+                  {establishment.address}
                 </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
@@ -76,11 +73,6 @@ export default function EstablishmentTable({ establishments }: EstablishmentTabl
                   <span className="text-yellow-500">⭐</span>
                   <span className="text-sm font-medium ml-1">{establishment.rating}</span>
                   <span className="text-sm text-gray-500 ml-1">({establishment.reviews})</span>
-                </div>
-              </td>
-              <td className="px-6 py-4">
-                <div className="text-sm text-gray-600 max-w-xs truncate" title={establishment.hours}>
-                  {establishment.hours}
                 </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">

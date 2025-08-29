@@ -12,7 +12,8 @@ type Establishment = (Agencia | Restaurante) & {
 
 
 export default function HomePage() {
-  const [establishments, setEstablishments] = useState<Establishment[]>([]);
+  const [restaurantes, setRestaurantes] = useState<Establishment[]>([]);
+  const [agencias, setAgencias] = useState<Establishment[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredEstablishments, setFilteredEstablishments] = useState<Establishment[]>([]);
@@ -24,37 +25,27 @@ export default function HomePage() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [agencias, restaurantes] = await Promise.all([
+        const [agenciasData, restaurantesData] = await Promise.all([
           loadAgencias(),
           loadRestaurantes()
         ]);
 
         // Create unique identifiers and assign categories based on source file
-        const agenciasWithCategory = agencias.map((a, index) => ({ 
+        const agenciasWithCategory = agenciasData.map((a, index) => ({ 
           ...a, 
           category: 'agencia' as const,
           uniqueId: `agencia_${a.place_id}_${index}`
         }));
         
-        const restaurantesWithCategory = restaurantes.map((r, index) => ({ 
+        const restaurantesWithCategory = restaurantesData.map((r, index) => ({ 
           ...r, 
           category: 'restaurante' as const,
           uniqueId: `restaurante_${r.place_id}_${index}`
         }));
 
-        const allEstablishments: Establishment[] = [
-          ...agenciasWithCategory,
-          ...restaurantesWithCategory
-        ];
-
-        // Remove duplicates based on place_id, keeping the first occurrence
-        const uniqueEstablishments = allEstablishments.filter((establishment, index, array) => 
-          index === array.findIndex(e => e.place_id === establishment.place_id)
-        );
-
-
-        setEstablishments(uniqueEstablishments);
-        setFilteredEstablishments(uniqueEstablishments);
+        // Keep data separated by source
+        setAgencias(agenciasWithCategory);
+        setRestaurantes(restaurantesWithCategory);
       } catch (error) {
         console.error('Error loading data:', error);
       } finally {
@@ -66,14 +57,15 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    let filtered = establishments;
+    let filtered: Establishment[] = [];
     
-    // Filter by category toggles
-    filtered = filtered.filter(establishment => {
-      if (establishment.category === 'restaurante' && !showRestaurantes) return false;
-      if (establishment.category === 'agencia' && !showAgencias) return false;
-      return true;
-    });
+    // Include data based on file source toggles
+    if (showRestaurantes) {
+      filtered = [...filtered, ...restaurantes];
+    }
+    if (showAgencias) {
+      filtered = [...filtered, ...agencias];
+    }
     
     // Filter by website availability
     if (showOnlyWithSite) {
@@ -92,7 +84,7 @@ export default function HomePage() {
     }
     
     setFilteredEstablishments(filtered);
-  }, [searchTerm, establishments, showRestaurantes, showAgencias, showOnlyWithSite]);
+  }, [searchTerm, restaurantes, agencias, showRestaurantes, showAgencias, showOnlyWithSite]);
 
   if (loading) {
     return (
@@ -125,7 +117,15 @@ export default function HomePage() {
           
           <div className="mt-4 flex flex-wrap gap-2 sm:gap-4">
             <button
-              onClick={() => setShowRestaurantes(!showRestaurantes)}
+              onClick={() => {
+                // If only restaurantes is active and we try to turn it off, turn on agencias instead
+                if (showRestaurantes && !showAgencias) {
+                  setShowRestaurantes(false);
+                  setShowAgencias(true);
+                } else {
+                  setShowRestaurantes(!showRestaurantes);
+                }
+              }}
               className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg border transition-colors text-sm ${
                 showRestaurantes 
                   ? 'bg-green-100 border-green-300 text-green-800' 
@@ -137,11 +137,19 @@ export default function HomePage() {
               }`}>
                 {showRestaurantes && <span className="text-white text-xs">✓</span>}
               </div>
-              <span className="whitespace-nowrap">🍽️ Restaurantes</span>
+              <span className="whitespace-nowrap">Restaurantes</span>
             </button>
             
             <button
-              onClick={() => setShowAgencias(!showAgencias)}
+              onClick={() => {
+                // If only agencias is active and we try to turn it off, turn on restaurantes instead
+                if (showAgencias && !showRestaurantes) {
+                  setShowAgencias(false);
+                  setShowRestaurantes(true);
+                } else {
+                  setShowAgencias(!showAgencias);
+                }
+              }}
               className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg border transition-colors text-sm ${
                 showAgencias 
                   ? 'bg-blue-100 border-blue-300 text-blue-800' 
@@ -153,7 +161,7 @@ export default function HomePage() {
               }`}>
                 {showAgencias && <span className="text-white text-xs">✓</span>}
               </div>
-              <span className="whitespace-nowrap">🏢 Agências</span>
+              <span className="whitespace-nowrap">Agências</span>
             </button>
             
             <button
@@ -169,7 +177,7 @@ export default function HomePage() {
               }`}>
                 {showOnlyWithSite && <span className="text-white text-xs">✓</span>}
               </div>
-              🌐 Com Website
+              Com Website
             </button>
           </div>
           
@@ -179,27 +187,28 @@ export default function HomePage() {
             </div>
             
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600 hidden sm:inline">Visualização:</span>
               <div className="flex border border-gray-300 rounded-lg overflow-hidden">
                 <button
                   onClick={() => setViewMode('cards')}
-                  className={`px-3 py-1 text-sm transition-colors ${
+                  className={`px-3 py-2 text-sm transition-colors ${
                     viewMode === 'cards'
                       ? 'bg-blue-600 text-white'
                       : 'bg-white text-gray-600 hover:bg-gray-50'
                   }`}
+                  title="Visualização em Cards"
                 >
-                  📋 Cards
+                  ⊞
                 </button>
                 <button
                   onClick={() => setViewMode('table')}
-                  className={`px-3 py-1 text-sm transition-colors ${
+                  className={`px-3 py-2 text-sm transition-colors ${
                     viewMode === 'table'
                       ? 'bg-blue-600 text-white'
                       : 'bg-white text-gray-600 hover:bg-gray-50'
                   }`}
+                  title="Visualização em Tabela"
                 >
-                  📊 Tabela
+                  ≡
                 </button>
               </div>
             </div>

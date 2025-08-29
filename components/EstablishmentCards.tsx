@@ -28,7 +28,6 @@ export default function EstablishmentCards({ establishments }: EstablishmentCard
 
           <div className="space-y-3">
             <div className="flex items-start gap-2">
-              <span className="text-gray-500 flex-shrink-0">📍</span>
               <span className="text-sm text-gray-600 break-words min-w-0">{establishment.address}</span>
             </div>
 
@@ -50,9 +49,6 @@ export default function EstablishmentCards({ establishments }: EstablishmentCard
             <div className="space-y-2 text-sm">
               <div className="break-words">
                 <span className="font-medium">Avaliações:</span> {establishment.reviews}
-              </div>
-              <div className="break-words">
-                <span className="font-medium">Horário:</span> {establishment.hours}
               </div>
             </div>
 
