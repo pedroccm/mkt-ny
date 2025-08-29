@@ -10,21 +10,15 @@ type Establishment = (Agencia | Restaurante) & {
   uniqueId: string;
 };
 
-interface FilterCategory {
-  name: string;
-  displayName: string;
-  icon: string;
-  color: string;
-  enabled: boolean;
-}
 
 export default function HomePage() {
   const [establishments, setEstablishments] = useState<Establishment[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredEstablishments, setFilteredEstablishments] = useState<Establishment[]>([]);
-  const [filterCategories, setFilterCategories] = useState<FilterCategory[]>([]);
   const [showOnlyWithSite, setShowOnlyWithSite] = useState(false);
+  const [showRestaurantes, setShowRestaurantes] = useState(true);
+  const [showAgencias, setShowAgencias] = useState(true);
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
 
   useEffect(() => {
@@ -58,68 +52,9 @@ export default function HomePage() {
           index === array.findIndex(e => e.place_id === establishment.place_id)
         );
 
-        // Extract dynamic categories from both datasets
-        const agenciaTypes = new Set<string>();
-        const restauranteTypes = new Set<string>();
-
-        agencias.forEach(a => a.types.forEach(type => agenciaTypes.add(type)));
-        restaurantes.forEach(r => r.types.forEach(type => restauranteTypes.add(type)));
-
-        // Create filter categories dynamically
-        const categories: FilterCategory[] = [
-          {
-            name: 'agencias',
-            displayName: 'Agências',
-            icon: '🏢',
-            color: 'blue',
-            enabled: true
-          },
-          {
-            name: 'restaurantes',
-            displayName: 'Restaurantes',
-            icon: '🍽️',
-            color: 'green',
-            enabled: true
-          }
-        ];
-
-        // Add subcategories for the most common types (limit to avoid UI clutter)
-        const topAgenciaTypes = Array.from(agenciaTypes)
-          .filter(type => type.toLowerCase().includes('marketing') || 
-                         type.toLowerCase().includes('advertising') ||
-                         type.toLowerCase().includes('design') ||
-                         type.toLowerCase().includes('agency'))
-          .slice(0, 3);
-
-        const topRestauranteTypes = Array.from(restauranteTypes)
-          .filter(type => type.includes('restaurant') && 
-                         !type.toLowerCase().includes('equipment') &&
-                         !type.toLowerCase().includes('supply'))
-          .slice(0, 5);
-
-        topAgenciaTypes.forEach((type, index) => {
-          categories.push({
-            name: `agencia_${type.toLowerCase().replace(/\s+/g, '_')}`,
-            displayName: type,
-            icon: '🎯',
-            color: 'purple',
-            enabled: true
-          });
-        });
-
-        topRestauranteTypes.forEach((type, index) => {
-          categories.push({
-            name: `restaurante_${type.toLowerCase().replace(/\s+/g, '_')}`,
-            displayName: type.replace(' restaurant', ''),
-            icon: '🍴',
-            color: 'orange',
-            enabled: true
-          });
-        });
 
         setEstablishments(uniqueEstablishments);
         setFilteredEstablishments(uniqueEstablishments);
-        setFilterCategories(categories);
       } catch (error) {
         console.error('Error loading data:', error);
       } finally {
@@ -140,6 +75,13 @@ export default function HomePage() {
       return true;
     });
     
+    // Filter by website availability
+    if (showOnlyWithSite) {
+      filtered = filtered.filter(establishment => 
+        establishment.website && establishment.website.trim() !== ''
+      );
+    }
+    
     // Filter by search term
     if (searchTerm.trim() !== '') {
       filtered = filtered.filter(establishment => 
@@ -150,7 +92,7 @@ export default function HomePage() {
     }
     
     setFilteredEstablishments(filtered);
-  }, [searchTerm, establishments, showRestaurantes, showAgencias]);
+  }, [searchTerm, establishments, showRestaurantes, showAgencias, showOnlyWithSite]);
 
   if (loading) {
     return (
@@ -212,6 +154,22 @@ export default function HomePage() {
                 {showAgencias && <span className="text-white text-xs">✓</span>}
               </div>
               🏢 Agências
+            </button>
+            
+            <button
+              onClick={() => setShowOnlyWithSite(!showOnlyWithSite)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+                showOnlyWithSite 
+                  ? 'bg-purple-100 border-purple-300 text-purple-800' 
+                  : 'bg-gray-100 border-gray-300 text-gray-600'
+              }`}
+            >
+              <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
+                showOnlyWithSite ? 'bg-purple-600 border-purple-600' : 'border-gray-300'
+              }`}>
+                {showOnlyWithSite && <span className="text-white text-xs">✓</span>}
+              </div>
+              🌐 Com Website
             </button>
           </div>
           
