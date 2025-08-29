@@ -40,9 +40,9 @@ export default function HomePage() {
         ]);
 
         // Function to deduplicate array based on title and address
-        const deduplicateByNameAndAddress = (data: any[], category: string) => {
+        const deduplicateByNameAndAddress = (data: (Agencia | Restaurante | Pilates)[], category: 'agencia' | 'restaurante' | 'pilates') => {
           const seen = new Map();
-          const deduplicated = [];
+          const deduplicated: Establishment[] = [];
           
           data.forEach((item, index) => {
             const title = (item.title || '').toLowerCase().trim();
@@ -53,7 +53,7 @@ export default function HomePage() {
               seen.set(key, true);
               deduplicated.push({
                 ...item,
-                category: category as const,
+                category: category,
                 uniqueId: `${category}_${item.place_id}_${index}`
               });
             }
