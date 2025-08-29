@@ -56,28 +56,31 @@ export default function EstablishmentCards({ establishments }: EstablishmentCard
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-2 pt-4">
-              {establishment.phone && (
-                <button className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 min-w-0 truncate">
+            <div className="grid grid-cols-3 gap-2 pt-4">
+              {establishment.phone ? (
+                <button className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 min-w-0 truncate">
                   📞 Ligar
                 </button>
+              ) : (
+                <div></div>
               )}
-              {establishment.website && (
+              {establishment.website ? (
                 <button 
-                  className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 min-w-0 truncate"
+                  className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 min-w-0 truncate"
                   onClick={() => window.open(establishment.website, '_blank')}
                 >
                   🌐 Site
                 </button>
+              ) : (
+                <div></div>
               )}
+              <button 
+                className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm min-w-0 truncate"
+                onClick={() => window.open(establishment.google_maps_url, '_blank')}
+              >
+                🗺️ Mapa
+              </button>
             </div>
-
-            <button 
-              className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-              onClick={() => window.open(establishment.google_maps_url, '_blank')}
-            >
-              Ver no Google Maps
-            </button>
           </div>
         </div>
       ))}
