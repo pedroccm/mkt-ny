@@ -39,24 +39,33 @@ export default function HomePage() {
           loadPilates()
         ]);
 
-        // Create unique identifiers and assign categories based on source file
-        const agenciasWithCategory = agenciasData.map((a, index) => ({ 
-          ...a, 
-          category: 'agencia' as const,
-          uniqueId: `agencia_${a.place_id}_${index}`
-        }));
-        
-        const restaurantesWithCategory = restaurantesData.map((r, index) => ({ 
-          ...r, 
-          category: 'restaurante' as const,
-          uniqueId: `restaurante_${r.place_id}_${index}`
-        }));
+        // Function to deduplicate array based on title and address
+        const deduplicateByNameAndAddress = (data: any[], category: string) => {
+          const seen = new Map();
+          const deduplicated = [];
+          
+          data.forEach((item, index) => {
+            const title = (item.title || '').toLowerCase().trim();
+            const address = (item.address || '').toLowerCase().trim();
+            const key = `${title}|${address}`;
+            
+            if (!seen.has(key) && title && address) {
+              seen.set(key, true);
+              deduplicated.push({
+                ...item,
+                category: category as const,
+                uniqueId: `${category}_${item.place_id}_${index}`
+              });
+            }
+          });
+          
+          return deduplicated;
+        };
 
-        const pilatesWithCategory = pilatesData.map((p, index) => ({ 
-          ...p, 
-          category: 'pilates' as const,
-          uniqueId: `pilates_${p.place_id}_${index}`
-        }));
+        // Deduplicate and create unique identifiers for each category
+        const agenciasWithCategory = deduplicateByNameAndAddress(agenciasData, 'agencia');
+        const restaurantesWithCategory = deduplicateByNameAndAddress(restaurantesData, 'restaurante');
+        const pilatesWithCategory = deduplicateByNameAndAddress(pilatesData, 'pilates');
 
         // Keep data separated by source
         setAgencias(agenciasWithCategory);
