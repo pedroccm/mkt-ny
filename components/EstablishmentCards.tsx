@@ -58,13 +58,13 @@ export default function EstablishmentCards({ establishments }: EstablishmentCard
 
             <div className="flex gap-2 pt-4">
               {establishment.phone && (
-                <button className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">
+                <button className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50">
                   📞 Ligar
                 </button>
               )}
               {establishment.website && (
                 <button 
-                  className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
+                  className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50"
                   onClick={() => window.open(establishment.website, '_blank')}
                 >
                   🌐 Site
