@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { loadAgencias, loadRestaurantes, type Agencia, type Restaurante } from '@/lib/data';
+import { LayoutGrid, Table } from 'lucide-react';
 
 type Establishment = (Agencia | Restaurante) & {
   category: 'agencia' | 'restaurante';
@@ -13,6 +14,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredEstablishments, setFilteredEstablishments] = useState<Establishment[]>([]);
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
 
   useEffect(() => {
     const loadData = async () => {
@@ -91,87 +93,184 @@ export default function HomePage() {
         </div>
 
         <div className="mb-6">
-          <input
-            type="text"
-            placeholder="Buscar estabelecimentos..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <div className="mt-2 text-sm text-gray-600">
+          <div className="flex items-center justify-between mb-4">
+            <input
+              type="text"
+              placeholder="Buscar estabelecimentos..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            
+            <div className="flex items-center gap-2 ml-4">
+              <button
+                onClick={() => setViewMode('cards')}
+                className={`p-2 rounded-lg border transition-colors ${
+                  viewMode === 'cards' 
+                    ? 'bg-blue-600 text-white border-blue-600' 
+                    : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                }`}
+                title="Visualização em Cards"
+              >
+                <LayoutGrid size={20} />
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                className={`p-2 rounded-lg border transition-colors ${
+                  viewMode === 'table' 
+                    ? 'bg-blue-600 text-white border-blue-600' 
+                    : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                }`}
+                title="Visualização em Tabela"
+              >
+                <Table size={20} />
+              </button>
+            </div>
+          </div>
+          <div className="text-sm text-gray-600">
             {filteredEstablishments.length} estabelecimentos encontrados
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredEstablishments.map((establishment) => (
-            <div key={establishment.uniqueId} className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
-              <div className="flex items-start justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900 leading-tight">
-                  {establishment.title}
-                </h3>
-                <div className="flex items-center gap-1 ml-2">
-                  <span className="text-yellow-500">⭐</span>
-                  <span className="text-sm font-medium">{establishment.rating}</span>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex items-start gap-2">
-                  <span className="text-gray-500">📍</span>
-                  <span className="text-sm text-gray-600">{establishment.address}</span>
+        {viewMode === 'cards' ? (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {filteredEstablishments.map((establishment) => (
+              <div key={establishment.uniqueId} className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                <div className="flex items-start justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900 leading-tight">
+                    {establishment.title}
+                  </h3>
+                  <div className="flex items-center gap-1 ml-2">
+                    <span className="text-yellow-500">⭐</span>
+                    <span className="text-sm font-medium">{establishment.rating}</span>
+                  </div>
                 </div>
 
-                <div className="flex flex-wrap gap-1">
-                  <span className={`px-2 py-1 text-xs rounded-full ${
-                    establishment.category === 'agencia' 
-                      ? 'bg-blue-100 text-blue-800' 
-                      : 'bg-green-100 text-green-800'
-                  }`}>
-                    {establishment.category === 'agencia' ? 'Agência' : 'Restaurante'}
-                  </span>
-                  {establishment.types.slice(0, 2).map((type, index) => (
-                    <span key={index} className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full">
-                      {type}
+                <div className="space-y-3">
+                  <div className="flex items-start gap-2">
+                    <span className="text-gray-500">📍</span>
+                    <span className="text-sm text-gray-600">{establishment.address}</span>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1">
+                    <span className={`px-2 py-1 text-xs rounded-full ${
+                      establishment.category === 'agencia' 
+                        ? 'bg-blue-100 text-blue-800' 
+                        : 'bg-green-100 text-green-800'
+                    }`}>
+                      {establishment.category === 'agencia' ? 'Agência' : 'Restaurante'}
                     </span>
-                  ))}
-                </div>
-
-                <div className="space-y-2 text-sm">
-                  <div>
-                    <span className="font-medium">Avaliações:</span> {establishment.reviews}
+                    {establishment.types.slice(0, 2).map((type, index) => (
+                      <span key={index} className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full">
+                        {type}
+                      </span>
+                    ))}
                   </div>
-                  <div>
-                    <span className="font-medium">Horário:</span> {establishment.hours}
+
+                  <div className="space-y-2 text-sm">
+                    <div>
+                      <span className="font-medium">Avaliações:</span> {establishment.reviews}
+                    </div>
+                    <div>
+                      <span className="font-medium">Horário:</span> {establishment.hours}
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex gap-2 pt-4">
-                  {establishment.phone && (
-                    <button className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">
-                      📞 Ligar
-                    </button>
-                  )}
-                  {establishment.website && (
-                    <button 
-                      className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
-                      onClick={() => window.open(establishment.website, '_blank')}
-                    >
-                      🌐 Site
-                    </button>
-                  )}
-                </div>
+                  <div className="flex gap-2 pt-4">
+                    {establishment.phone && (
+                      <button className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">
+                        📞 Ligar
+                      </button>
+                    )}
+                    {establishment.website && (
+                      <button 
+                        className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
+                        onClick={() => window.open(establishment.website, '_blank')}
+                      >
+                        🌐 Site
+                      </button>
+                    )}
+                  </div>
 
-                <button 
-                  className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  onClick={() => window.open(establishment.google_maps_url, '_blank')}
-                >
-                  Ver no Google Maps
-                </button>
+                  <button 
+                    className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    onClick={() => window.open(establishment.google_maps_url, '_blank')}
+                  >
+                    Ver no Google Maps
+                  </button>
+                </div>
               </div>
+            ))}
+          </div>
+        ) : (
+          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Nome</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Categoria</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Avaliação</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Endereço</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Ações</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {filteredEstablishments.map((establishment) => (
+                    <tr key={establishment.uniqueId} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-medium text-gray-900">{establishment.title}</div>
+                        <div className="text-xs text-gray-500">{establishment.hours}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2 py-1 text-xs rounded-full ${
+                          establishment.category === 'agencia' 
+                            ? 'bg-blue-100 text-blue-800' 
+                            : 'bg-green-100 text-green-800'
+                        }`}>
+                          {establishment.category === 'agencia' ? 'Agência' : 'Restaurante'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-1">
+                          <span className="text-yellow-500">⭐</span>
+                          <span className="text-sm font-medium">{establishment.rating}</span>
+                          <span className="text-xs text-gray-500">({establishment.reviews})</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-gray-600 max-w-xs truncate">{establishment.address}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex gap-2">
+                          {establishment.phone && (
+                            <button className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50">
+                              📞
+                            </button>
+                          )}
+                          {establishment.website && (
+                            <button 
+                              className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50"
+                              onClick={() => window.open(establishment.website, '_blank')}
+                            >
+                              🌐
+                            </button>
+                          )}
+                          <button 
+                            className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
+                            onClick={() => window.open(establishment.google_maps_url, '_blank')}
+                          >
+                            Maps
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          ))}
-        </div>
+          </div>
+        )}
 
         {filteredEstablishments.length === 0 && (
           <div className="text-center py-12">
