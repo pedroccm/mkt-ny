@@ -133,6 +133,10 @@ export default function HomePage() {
   useEffect(() => {
     let filtered = establishments;
     
+    // Get enabled categories
+    const showRestaurantes = filterCategories.find(cat => cat.name === 'restaurantes')?.enabled ?? true;
+    const showAgencias = filterCategories.find(cat => cat.name === 'agencias')?.enabled ?? true;
+    
     // Filter by category toggles
     filtered = filtered.filter(establishment => {
       if (establishment.category === 'restaurante' && !showRestaurantes) return false;
@@ -150,7 +154,7 @@ export default function HomePage() {
     }
     
     setFilteredEstablishments(filtered);
-  }, [searchTerm, establishments, showRestaurantes, showAgencias]);
+  }, [searchTerm, establishments, filterCategories]);
 
   if (loading) {
     return (
@@ -182,37 +186,34 @@ export default function HomePage() {
           />
           
           <div className="mt-4 flex gap-4">
-            <button
-              onClick={() => setShowRestaurantes(!showRestaurantes)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
-                showRestaurantes 
-                  ? 'bg-green-100 border-green-300 text-green-800' 
-                  : 'bg-gray-100 border-gray-300 text-gray-600'
-              }`}
-            >
-              <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
-                showRestaurantes ? 'bg-green-600 border-green-600' : 'border-gray-300'
-              }`}>
-                {showRestaurantes && <span className="text-white text-xs">✓</span>}
-              </div>
-              🍽️ Restaurantes
-            </button>
-            
-            <button
-              onClick={() => setShowAgencias(!showAgencias)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
-                showAgencias 
-                  ? 'bg-blue-100 border-blue-300 text-blue-800' 
-                  : 'bg-gray-100 border-gray-300 text-gray-600'
-              }`}
-            >
-              <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
-                showAgencias ? 'bg-blue-600 border-blue-600' : 'border-gray-300'
-              }`}>
-                {showAgencias && <span className="text-white text-xs">✓</span>}
-              </div>
-              🏢 Agências
-            </button>
+            {filterCategories.map(category => (
+              <button
+                key={category.name}
+                onClick={() => {
+                  setFilterCategories(prev => 
+                    prev.map(cat => 
+                      cat.name === category.name 
+                        ? { ...cat, enabled: !cat.enabled }
+                        : cat
+                    )
+                  );
+                }}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+                  category.enabled
+                    ? `bg-${category.color}-100 border-${category.color}-300 text-${category.color}-800` 
+                    : 'bg-gray-100 border-gray-300 text-gray-600'
+                }`}
+              >
+                <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
+                  category.enabled 
+                    ? `bg-${category.color}-600 border-${category.color}-600` 
+                    : 'border-gray-300'
+                }`}>
+                  {category.enabled && <span className="text-white text-xs">✓</span>}
+                </div>
+                {category.icon} {category.displayName}
+              </button>
+            ))}
           </div>
           
           <div className="mt-4 flex items-center justify-between">
