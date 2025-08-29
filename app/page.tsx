@@ -16,6 +16,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredEstablishments, setFilteredEstablishments] = useState<Establishment[]>([]);
+  const [showOnlyWithSite, setShowOnlyWithSite] = useState(false);
   const [showRestaurantes, setShowRestaurantes] = useState(true);
   const [showAgencias, setShowAgencias] = useState(true);
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
@@ -74,6 +75,13 @@ export default function HomePage() {
       return true;
     });
     
+    // Filter by website availability
+    if (showOnlyWithSite) {
+      filtered = filtered.filter(establishment => 
+        establishment.website && establishment.website.trim() !== ''
+      );
+    }
+    
     // Filter by search term
     if (searchTerm.trim() !== '') {
       filtered = filtered.filter(establishment => 
@@ -84,7 +92,7 @@ export default function HomePage() {
     }
     
     setFilteredEstablishments(filtered);
-  }, [searchTerm, establishments, showRestaurantes, showAgencias]);
+  }, [searchTerm, establishments, showRestaurantes, showAgencias, showOnlyWithSite]);
 
   if (loading) {
     return (
@@ -146,6 +154,22 @@ export default function HomePage() {
                 {showAgencias && <span className="text-white text-xs">✓</span>}
               </div>
               <span className="whitespace-nowrap">🏢 Agências</span>
+            </button>
+            
+            <button
+              onClick={() => setShowOnlyWithSite(!showOnlyWithSite)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+                showOnlyWithSite 
+                  ? 'bg-purple-100 border-purple-300 text-purple-800' 
+                  : 'bg-gray-100 border-gray-300 text-gray-600'
+              }`}
+            >
+              <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
+                showOnlyWithSite ? 'bg-purple-600 border-purple-600' : 'border-gray-300'
+              }`}>
+                {showOnlyWithSite && <span className="text-white text-xs">✓</span>}
+              </div>
+              🌐 Com Website
             </button>
           </div>
           
