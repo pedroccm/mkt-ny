@@ -13,6 +13,8 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredEstablishments, setFilteredEstablishments] = useState<Establishment[]>([]);
+  const [showRestaurantes, setShowRestaurantes] = useState(true);
+  const [showAgencias, setShowAgencias] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {
@@ -58,17 +60,26 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    if (searchTerm.trim() === '') {
-      setFilteredEstablishments(establishments);
-    } else {
-      const filtered = establishments.filter(establishment => 
+    let filtered = establishments;
+    
+    // Filter by category toggles
+    filtered = filtered.filter(establishment => {
+      if (establishment.category === 'restaurante' && !showRestaurantes) return false;
+      if (establishment.category === 'agencia' && !showAgencias) return false;
+      return true;
+    });
+    
+    // Filter by search term
+    if (searchTerm.trim() !== '') {
+      filtered = filtered.filter(establishment => 
         establishment.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         establishment.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
         establishment.type.toLowerCase().includes(searchTerm.toLowerCase())
       );
-      setFilteredEstablishments(filtered);
     }
-  }, [searchTerm, establishments]);
+    
+    setFilteredEstablishments(filtered);
+  }, [searchTerm, establishments, showRestaurantes, showAgencias]);
 
   if (loading) {
     return (
@@ -98,6 +109,41 @@ export default function HomePage() {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          
+          <div className="mt-4 flex gap-4">
+            <button
+              onClick={() => setShowRestaurantes(!showRestaurantes)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+                showRestaurantes 
+                  ? 'bg-green-100 border-green-300 text-green-800' 
+                  : 'bg-gray-100 border-gray-300 text-gray-600'
+              }`}
+            >
+              <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
+                showRestaurantes ? 'bg-green-600 border-green-600' : 'border-gray-300'
+              }`}>
+                {showRestaurantes && <span className="text-white text-xs">✓</span>}
+              </div>
+              🍽️ Restaurantes
+            </button>
+            
+            <button
+              onClick={() => setShowAgencias(!showAgencias)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+                showAgencias 
+                  ? 'bg-blue-100 border-blue-300 text-blue-800' 
+                  : 'bg-gray-100 border-gray-300 text-gray-600'
+              }`}
+            >
+              <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
+                showAgencias ? 'bg-blue-600 border-blue-600' : 'border-gray-300'
+              }`}>
+                {showAgencias && <span className="text-white text-xs">✓</span>}
+              </div>
+              🏢 Agências
+            </button>
+          </div>
+          
           <div className="mt-2 text-sm text-gray-600">
             {filteredEstablishments.length} estabelecimentos encontrados
           </div>
