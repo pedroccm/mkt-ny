@@ -29,7 +29,7 @@ export default function HomePage() {
           loadRestaurantes()
         ]);
 
-        // Remove duplicates and create unique identifiers
+        // Create unique identifiers and assign categories based on source file
         const agenciasWithCategory = agencias.map((a, index) => ({ 
           ...a, 
           category: 'agencia' as const,
