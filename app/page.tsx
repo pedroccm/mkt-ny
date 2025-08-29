@@ -10,13 +10,21 @@ type Establishment = (Agencia | Restaurante) & {
   uniqueId: string;
 };
 
+interface FilterCategory {
+  name: string;
+  displayName: string;
+  icon: string;
+  color: string;
+  enabled: boolean;
+}
+
 export default function HomePage() {
   const [establishments, setEstablishments] = useState<Establishment[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredEstablishments, setFilteredEstablishments] = useState<Establishment[]>([]);
-  const [showRestaurantes, setShowRestaurantes] = useState(true);
-  const [showAgencias, setShowAgencias] = useState(true);
+  const [filterCategories, setFilterCategories] = useState<FilterCategory[]>([]);
+  const [showOnlyWithSite, setShowOnlyWithSite] = useState(false);
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
 
   useEffect(() => {
@@ -50,8 +58,68 @@ export default function HomePage() {
           index === array.findIndex(e => e.place_id === establishment.place_id)
         );
 
+        // Extract dynamic categories from both datasets
+        const agenciaTypes = new Set<string>();
+        const restauranteTypes = new Set<string>();
+
+        agencias.forEach(a => a.types.forEach(type => agenciaTypes.add(type)));
+        restaurantes.forEach(r => r.types.forEach(type => restauranteTypes.add(type)));
+
+        // Create filter categories dynamically
+        const categories: FilterCategory[] = [
+          {
+            name: 'agencias',
+            displayName: 'Agências',
+            icon: '🏢',
+            color: 'blue',
+            enabled: true
+          },
+          {
+            name: 'restaurantes',
+            displayName: 'Restaurantes',
+            icon: '🍽️',
+            color: 'green',
+            enabled: true
+          }
+        ];
+
+        // Add subcategories for the most common types (limit to avoid UI clutter)
+        const topAgenciaTypes = Array.from(agenciaTypes)
+          .filter(type => type.toLowerCase().includes('marketing') || 
+                         type.toLowerCase().includes('advertising') ||
+                         type.toLowerCase().includes('design') ||
+                         type.toLowerCase().includes('agency'))
+          .slice(0, 3);
+
+        const topRestauranteTypes = Array.from(restauranteTypes)
+          .filter(type => type.includes('restaurant') && 
+                         !type.toLowerCase().includes('equipment') &&
+                         !type.toLowerCase().includes('supply'))
+          .slice(0, 5);
+
+        topAgenciaTypes.forEach((type, index) => {
+          categories.push({
+            name: `agencia_${type.toLowerCase().replace(/\s+/g, '_')}`,
+            displayName: type,
+            icon: '🎯',
+            color: 'purple',
+            enabled: true
+          });
+        });
+
+        topRestauranteTypes.forEach((type, index) => {
+          categories.push({
+            name: `restaurante_${type.toLowerCase().replace(/\s+/g, '_')}`,
+            displayName: type.replace(' restaurant', ''),
+            icon: '🍴',
+            color: 'orange',
+            enabled: true
+          });
+        });
+
         setEstablishments(uniqueEstablishments);
         setFilteredEstablishments(uniqueEstablishments);
+        setFilterCategories(categories);
       } catch (error) {
         console.error('Error loading data:', error);
       } finally {
