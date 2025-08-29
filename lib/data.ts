@@ -24,7 +24,7 @@ export interface Agencia {
   thumbnail: string;
   image: string;
   google_maps_url: string;
-  unclaimed_business: null | any;
+  unclaimed_business: null | unknown;
   price: string | null;
 }
 
@@ -56,7 +56,7 @@ export interface Restaurante {
   thumbnail: string;
   image: string;
   google_maps_url: string;
-  unclaimed_business: null | any;
+  unclaimed_business: null | unknown;
 }
 
 let agenciasData: Agencia[] | null = null;

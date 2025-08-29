@@ -4,99 +4,22 @@ import { Button } from "@/components/ui/button"
 import { Star, MapPin, Phone, Globe, Clock, ArrowLeft, ExternalLink } from "lucide-react"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-
-// Mock data - in a real app, this would come from an API or database
-const establishments = [
-  {
-    title: "Creative 360 Pro | Web Design & SEO Agency",
-    place_id: "ChIJZ1Tdr4FhwokRAduFCmuVWnc",
-    data_id: "0x89c26181afdd5467:0x775a956b0a85db01",
-    rating: 4.9,
-    reviews: 291,
-    type: "Marketing agency",
-    types: ["Marketing agency", "Website designer"],
-    address: "51 Frances St, Clifton, NJ 07014",
-    open_state: "Open 24 hours",
-    hours: "Open 24 hours",
-    operating_hours: {
-      thursday: "Open 24 hours",
-      friday: "Open 24 hours",
-      saturday: "Open 24 hours",
-      sunday: "Open 24 hours",
-      monday: "Open 24 hours (Labor Day)",
-      tuesday: "Open 24 hours",
-      wednesday: "Open 24 hours",
-    },
-    phone: "+19735631729",
-    website: "https://creative360pro.com/",
-    image: "https://lh3.googleusercontent.com/p/AF1QipNQBARQOrBcFheo7adlai-w27WH13CiyBtP6TOv=w1200-h628-k-no",
-    gps_coordinates: {
-      latitude: 40.8375555,
-      longitude: -74.1355134,
-    },
-    google_maps_url:
-      "https://www.google.com/maps/place/Creative+360+Pro+|+Web+Design+&+SEO+Agency/@40.8375555,-74.1355134,12/data=!3m1!1e3!4m6!3m5!1s0x89c26181afdd5467:0x775a956b0a85db01!8m2!3d40.8375555!4d-74.1355134!16s",
-  },
-  {
-    title: "Tech Solutions Hub",
-    place_id: "ChIJExample123",
-    rating: 4.7,
-    reviews: 156,
-    type: "IT Services",
-    types: ["IT Services", "Software Development"],
-    address: "123 Main St, New York, NY 10001",
-    open_state: "Open",
-    hours: "9 AM - 6 PM",
-    operating_hours: {
-      monday: "9:00 AM - 6:00 PM",
-      tuesday: "9:00 AM - 6:00 PM",
-      wednesday: "9:00 AM - 6:00 PM",
-      thursday: "9:00 AM - 6:00 PM",
-      friday: "9:00 AM - 6:00 PM",
-      saturday: "Closed",
-      sunday: "Closed",
-    },
-    phone: "+12125551234",
-    website: "https://techsolutions.com/",
-    image: "/modern-tech-office.png",
-    gps_coordinates: {
-      latitude: 40.7128,
-      longitude: -74.006,
-    },
-  },
-  {
-    title: "Local Coffee Roasters",
-    place_id: "ChIJExample456",
-    rating: 4.5,
-    reviews: 89,
-    type: "Coffee shop",
-    types: ["Coffee shop", "Cafe"],
-    address: "456 Oak Ave, Brooklyn, NY 11201",
-    open_state: "Closes at 8 PM",
-    hours: "6 AM - 8 PM",
-    operating_hours: {
-      monday: "6:00 AM - 8:00 PM",
-      tuesday: "6:00 AM - 8:00 PM",
-      wednesday: "6:00 AM - 8:00 PM",
-      thursday: "6:00 AM - 8:00 PM",
-      friday: "6:00 AM - 9:00 PM",
-      saturday: "7:00 AM - 9:00 PM",
-      sunday: "7:00 AM - 7:00 PM",
-    },
-    phone: "+17185559876",
-    website: "https://localcoffee.com/",
-    image: "/cozy-coffee-shop-interior-with-roasting-equipment.png",
-  },
-]
+import { getAgenciaById, getRestauranteById } from "@/lib/data"
 
 interface BusinessPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
-export default function BusinessPage({ params }: BusinessPageProps) {
-  const business = establishments.find((b) => b.place_id === params.id)
+export default async function BusinessPage({ params }: BusinessPageProps) {
+  const { id } = await params;
+  
+  // Try to find the business in both agencias and restaurantes
+  const agencia = await getAgenciaById(id);
+  const restaurante = await getRestauranteById(id);
+  
+  const business = agencia || restaurante;
 
   if (!business) {
     notFound()
