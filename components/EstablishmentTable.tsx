@@ -33,6 +33,9 @@ export default function EstablishmentTable({ establishments }: EstablishmentTabl
               Horário
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Site
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Ações
             </th>
           </tr>
@@ -79,6 +82,21 @@ export default function EstablishmentTable({ establishments }: EstablishmentTabl
                 <div className="text-sm text-gray-600 max-w-xs truncate" title={establishment.hours}>
                   {establishment.hours}
                 </div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                {establishment.website ? (
+                  <a 
+                    href={establishment.website} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 text-sm truncate max-w-32 inline-block"
+                    title={establishment.website}
+                  >
+                    🌐 Ver site
+                  </a>
+                ) : (
+                  <span className="text-gray-400 text-sm">-</span>
+                )}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="flex space-x-2">
